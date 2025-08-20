@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import "./ProductList.css";
 import CartItem from "./CartItem";
 import { addItem } from "./CartSlice";
 function ProductList({ onHomeClick }) {
   const [showCart, setShowCart] = useState(false);
   const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items); // Get cart items from Redux store
 
   const plantsArray = [
     {
@@ -294,6 +297,10 @@ function ProductList({ onHomeClick }) {
 
     setAddedToCart((prevState) => ({ ...prevState, [product.name]: true }));
   };
+  // Calculate total quantity of items in cart
+  const calculateTotalQuantity = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
   return (
     <div>
       <div className="navbar" style={styleObj}>
@@ -342,6 +349,26 @@ function ProductList({ onHomeClick }) {
                     id="mainIconPathAttribute"
                   ></path>
                 </svg>
+                {calculateTotalQuantity() > 0 && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      right: "0",
+                      background: "red",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      fontSize: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {calculateTotalQuantity()}
+                  </span>
+                )}
               </h1>
             </a>
           </div>
@@ -381,8 +408,11 @@ function ProductList({ onHomeClick }) {
                         <button
                           className="product-button"
                           onClick={() => handleAddToCart(plant)}
+                          disabled={addedToCart[plant.name]}
                         >
-                          Add to Cart
+                          {addedToCart[plant.name]
+                            ? "Added to Cart!"
+                            : "Add to Cart"}
                         </button>
                       </div>
                     )
